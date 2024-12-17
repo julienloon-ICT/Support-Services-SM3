@@ -40,8 +40,8 @@ jobs:
     - name: Switch HAProxy backend naar Green
       run: |
         sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HAPROXY_HOST }} \
-        "bash /home/srvadmin/switch-blue-green-haproxy.sh green"
-
+        "echo '${{ secrets.SUDO_PASSWORD }}' | sudo -S bash /home/srvadmin/switch-blue-green-haproxy.sh green"
+        
     - name: Restart HAProxy
       run: |
         sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HAPROXY_HOST }} \
