@@ -41,7 +41,7 @@ jobs:
       run: |
         sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HAPROXY_HOST }} \
         "echo '${{ secrets.SUDO_PASSWORD }}' | sudo -S bash /home/srvadmin/switch-blue-green-haproxy.sh green"
-        
+
     - name: Restart HAProxy
       run: |
         sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HAPROXY_HOST }} \
@@ -50,4 +50,3 @@ jobs:
     - name: Verify HAProxy switch
       run: |
         curl -s http://${{ secrets.HAPROXY_HOST }}/haproxy?stats | grep "backend_green" && echo "HAProxy switched to green."
-
