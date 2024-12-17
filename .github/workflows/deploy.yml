@@ -42,7 +42,7 @@ jobs:
         sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HAPROXY_HOST }} \
         "bash /home/srvadmin/switch-blue-green-haproxy.sh green"
 
-   - name: Restart HAProxy service
+    - name: Restart HAProxy
       run: |
         sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HAPROXY_HOST }} \
         "sudo systemctl restart haproxy.service"
