@@ -49,7 +49,7 @@ jobs:
 
     - name: Verify HAProxy switch
       run: |
-        sleep 5
-        curl -u admin:password -s http://${{ secrets.HAPROXY_HOST }}/haproxy?stats | grep "backend_green" \
+        sleep 5  # Wait for HAProxy to potentially switch
+        curl -s http://${{ secrets.HAPROXY_HOST }}/haproxy?stats | grep "© 2024 Julian Loontjens - Green Environment" \
         && echo "HAProxy switched to green." \
         || (echo "HAProxy did not switch to green." && exit 1)
