@@ -50,3 +50,4 @@ jobs:
     - name: Verify HAProxy switch
       run: |
         curl -s http://${{ secrets.HAPROXY_HOST }}/haproxy?stats | grep "backend_green" && echo "HAProxy switched to green."
+
