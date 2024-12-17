@@ -40,7 +40,7 @@ jobs:
     - name: Switch HAProxy backend naar Green
       run: |
         sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HAPROXY_HOST }} \
-        "bash /path/to/switch_backend.sh green"
+        "bash /home/srvadmin/switch_backend.sh green"
 
     - name: Verify HAProxy switch
       run: |
