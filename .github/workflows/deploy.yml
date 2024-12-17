@@ -45,7 +45,7 @@ jobs:
     - name: Restart HAProxy
       run: |
         sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HAPROXY_HOST }} \
-        "sudo systemctl restart haproxy.service"
+        "echo '${{ secrets.SUDO_PASSWORD }}' | sudo -S systemctl restart haproxy.service"
 
     - name: Verify HAProxy switch
       run: |
