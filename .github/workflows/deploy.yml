@@ -1,9 +1,9 @@
-name: Build and Deploy to Docker Hub
+name: Build, Deploy and Switch Blue-Green
 
 on:
   push:
     branches:
-      - main  # Trigger op push naar de `main` branch
+      - main
 
 jobs:
   build-and-push:
@@ -23,3 +23,25 @@ jobs:
       run: |
         docker build -t julienloonict/ss-bg:latest ./Website
         docker push julienloonict/ss-bg:latest
+
+  deploy-and-switch:
+    runs-on: self-hosted
+    needs: build-and-push
+
+    steps:
+    - name: Pull nieuwe image op SR-NEW-01
+      run: |
+        sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@192.168.1.17 \
+        "docker pull julienloonict/ss-bg:latest && \
+         docker stop website || true && \
+         docker rm website || true && \
+         docker run -d --name website -p 80:80 julienloonict/ss-bg:latest"
+
+    - name: Switch HAProxy backend naar Green
+      run: |
+        sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HAPROXY_HOST }} \
+        "bash /path/to/switch_backend.sh green"
+
+    - name: Verify HAProxy switch
+      run: |
+        curl -s http://${{ secrets.HAPROXY_HOST }}/haproxy?stats | grep "backend_green" && echo "HAProxy switched to green."
