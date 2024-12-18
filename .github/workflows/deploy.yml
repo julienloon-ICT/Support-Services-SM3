@@ -52,7 +52,7 @@ jobs:
       uses: trstringer/manual-approval@v1
       with:
         secret: ${{ github.TOKEN }}
-        approvers: julienloon-ict
+        approvers: julienloon-ICT
 
   deploy-to-production:
     runs-on: haproxy
@@ -83,4 +83,3 @@ jobs:
         curl -s http://${{ secrets.HAPROXY_HOST }} | grep "Green Environment" \
         && echo "HAProxy switched to green." \
         || (echo "HAProxy did not switch to green." && exit 1)
-        
