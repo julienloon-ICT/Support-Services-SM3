@@ -52,7 +52,7 @@ jobs:
       uses: trstringer/manual-approval@v1
       with:
         secret: ${{ github.TOKEN }}
-        approvers: julienloonict
+        approvers: julienloon-ict
 
   deploy-to-production:
     runs-on: haproxy
