@@ -31,15 +31,15 @@ jobs:
     steps:
     - name: Pull nieuwe image op SR-TST-01
       run: |
-        docker pull julienloonict/ss-bg:latest
-        docker stop test-website || true
-        docker rm test-website || true
-        docker run -d --name test-website -p 80:80 julienloonict/ss-bg:latest
+        echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S docker pull julienloonict/ss-bg:latest
+        echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S docker stop test-website || true
+        echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S docker rm test-website || true
+        echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S docker run -d --name test-website -p 80:80 julienloonict/ss-bg:latest
 
     - name: Verify test environment
       run: |
         sleep 5
-        curl -s http://localhost | grep "Green Environment" \
+        curl -s http://localhost:80 | grep "Green Environment" \
         && echo "Test environment deployed successfully." \
         || (echo "Test environment deployment failed." && exit 1)
 
@@ -55,7 +55,7 @@ jobs:
         approvers: julienloonict
 
   deploy-to-production:
-    runs-on: tstserver
+    runs-on: haproxy
     needs: approval-step
 
     steps:
@@ -83,4 +83,3 @@ jobs:
         curl -s http://${{ secrets.HAPROXY_HOST }} | grep "Green Environment" \
         && echo "HAProxy switched to green." \
         || (echo "HAProxy did not switch to green." && exit 1)
-        
