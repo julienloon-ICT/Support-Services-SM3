@@ -83,3 +83,4 @@ jobs:
         curl -s http://${{ secrets.HAPROXY_HOST }} | grep "Green Environment" \
         && echo "HAProxy switched to green." \
         || (echo "HAProxy did not switch to green." && exit 1)
+        
