@@ -74,13 +74,14 @@ jobs:
           echo "TARGET_SERVER=192.168.1.16" >> $GITHUB_ENV
         fi
 
-    - name: Pull nieuwe image op andere server
+    - name: Pull nieuwe image en herstart container
       run: |
         sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@$TARGET_SERVER \
-        "docker pull julienloonict/ss-bg:latest && \
-         docker stop website || true && \
-         docker rm website || true && \
-         docker run -d --name website -p 80:80 julienloonict/ss-bg:latest"
+        "echo '${{ secrets.SUDO_PASSWORD }}' | sudo -S docker login -u '${{ secrets.DOCKER_USERNAME }}' -p '${{ secrets.DOCKER_PASSWORD }}' && \
+          docker pull julienloonict/ss-bg:latest && \
+          docker stop website || true && \
+          docker rm -f website || true && \
+          docker run -d --name website -p 80:80 julienloonict/ss-bg:latest"
 
     - name: Switch HAProxy backend
       run: |
