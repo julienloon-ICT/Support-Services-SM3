@@ -8,7 +8,6 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -27,7 +26,6 @@ jobs:
   deploy-to-test:
     runs-on: tstserver
     needs: build-and-push
-
     steps:
     - name: Pull nieuwe image op SR-TST-01
       run: |
@@ -36,17 +34,22 @@ jobs:
         echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S docker rm test-website || true
         echo "${{ secrets.SUDO_PASSWORD }}" | sudo -S docker run -d --name test-website -p 80:80 julienloonict/ss-bg:latest
 
-    - name: Verify test environment
+    - name: Verify test environment and display active site
       run: |
         sleep 5
-        curl -s http://localhost:80 | grep "Green Environment" \
-        && echo "Test environment deployed successfully." \
-        || (echo "Test environment deployment failed." && exit 1)
+        RESPONSE=$(curl -s http://localhost:80)
+        if echo "$RESPONSE" | grep -q "Green Environment"; then
+          echo "Test environment deployed successfully: Green Environment."
+        elif echo "$RESPONSE" | grep -q "Blue Environment"; then
+          echo "Test environment deployed successfully: Blue Environment."
+        else
+          echo "Test environment deployment failed."
+          exit 1
+        fi
 
   approval-step:
     runs-on: ubuntu-latest
     needs: deploy-to-test
-
     steps:
     - name: Await manual approval
       uses: trstringer/manual-approval@v1
@@ -57,7 +60,6 @@ jobs:
   deploy-to-production:
     runs-on: haproxy
     needs: approval-step
-
     steps:
     - name: Pull nieuwe image op SR-NEW-01
       run: |
@@ -67,19 +69,15 @@ jobs:
          docker rm website || true && \
          docker run -d --name website -p 80:80 julienloonict/ss-bg:latest"
 
-    - name: Switch HAProxy backend naar Green
+    - name: Switch HAProxy backend
       run: |
         sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HAPROXY_HOST }} \
-        "echo '${{ secrets.SUDO_PASSWORD }}' | sudo -S bash /home/srvadmin/switch-blue-green-haproxy.sh green"
+        "echo '${{ secrets.SUDO_PASSWORD }}' | sudo -S bash /home/srvadmin/switch-blue-green-haproxy.sh"
 
-    - name: Restart HAProxy
+    - name: Verify active backend in HAProxy
       run: |
         sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HAPROXY_HOST }} \
-        "echo '${{ secrets.SUDO_PASSWORD }}' | sudo -S systemctl restart haproxy.service"
-
-    - name: Verify HAProxy switch
-      run: |
-        sleep 5
-        curl -s http://${{ secrets.HAPROXY_HOST }} | grep "Green Environment" \
-        && echo "HAProxy switched to green." \
-        || (echo "HAProxy did not switch to green." && exit 1)
+        "grep 'default_backend' /etc/haproxy/haproxy.cfg | grep 'backend_green' \
+        && echo 'HAProxy switched to backend_green.' \
+        || (grep 'default_backend' /etc/haproxy/haproxy.cfg | grep 'backend_blue' \
+        && echo 'HAProxy switched to backend_blue.' || (echo 'HAProxy switch failed.' && exit 1))"
