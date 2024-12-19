@@ -65,12 +65,12 @@ jobs:
       id: next-backend
       run: |
         CURRENT_BACKEND=$(sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HAPROXY_HOST }} \
-          "cat /home/srvadmin/haproxy_backend_status.txt 2>/dev/null || echo 'backend_blue'")
-        if [ "$CURRENT_BACKEND" = "backend_blue" ]; then
-          echo "NEXT_BACKEND=backend_green" >> $GITHUB_ENV
+          "cat /home/srvadmin/haproxy_backend_status.txt 2>/dev/null || echo 'server_1'")
+        if [ "$CURRENT_BACKEND" = "server_1" ]; then
+          echo "NEXT_BACKEND=server_2" >> $GITHUB_ENV
           echo "TARGET_SERVER=192.168.1.17" >> $GITHUB_ENV
         else
-          echo "NEXT_BACKEND=backend_blue" >> $GITHUB_ENV
+          echo "NEXT_BACKEND=server_1" >> $GITHUB_ENV
           echo "TARGET_SERVER=192.168.1.16" >> $GITHUB_ENV
         fi
 
@@ -94,4 +94,3 @@ jobs:
         "grep 'default_backend' /etc/haproxy/haproxy.cfg | grep ${{ env.NEXT_BACKEND }} \
         && echo 'HAProxy switched to ${{ env.NEXT_BACKEND }}.' \
         || (echo 'HAProxy switch failed.' && exit 1)"
-        
