@@ -59,7 +59,7 @@ jobs:
 
   deploy-to-production:
     runs-on: haproxy
-    needs: build-and-push
+    needs: approval-step
     steps:
     - name: Determine active backend
       id: active-backend
