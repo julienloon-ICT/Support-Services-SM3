@@ -94,3 +94,4 @@ jobs:
         "grep 'default_backend' /etc/haproxy/haproxy.cfg | grep ${{ env.NEXT_BACKEND }} \
         && echo 'HAProxy switched to ${{ env.NEXT_BACKEND }}.' \
         || (echo 'HAProxy switch failed.' && exit 1)"
+        
