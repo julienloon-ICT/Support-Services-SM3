@@ -59,11 +59,25 @@ jobs:
 
   deploy-to-production:
     runs-on: haproxy
-    needs: approval-step
+    needs: build-and-push
     steps:
-    - name: Pull nieuwe image op SR-NEW-01
+    - name: Determine active backend
+      id: active-backend
       run: |
-        sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@192.168.1.17 \
+        ACTIVE_BACKEND=$(sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HAPROXY_HOST }} \
+          "grep 'default_backend' /etc/haproxy/haproxy.cfg | awk '{print \$2}'")
+        echo "Active backend: $ACTIVE_BACKEND"
+        if [ "$ACTIVE_BACKEND" = "backend_blue" ]; then
+          echo "OTHER_BACKEND=backend_green" >> $GITHUB_ENV
+          echo "TARGET_SERVER=192.168.1.17" >> $GITHUB_ENV
+        else
+          echo "OTHER_BACKEND=backend_blue" >> $GITHUB_ENV
+          echo "TARGET_SERVER=192.168.1.16" >> $GITHUB_ENV
+        fi
+
+    - name: Pull nieuwe image op andere server
+      run: |
+        sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@$TARGET_SERVER \
         "docker pull julienloonict/ss-bg:latest && \
          docker stop website || true && \
          docker rm website || true && \
@@ -72,12 +86,11 @@ jobs:
     - name: Switch HAProxy backend
       run: |
         sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HAPROXY_HOST }} \
-        "echo '${{ secrets.SUDO_PASSWORD }}' | sudo -S bash /home/srvadmin/switch-blue-green-haproxy.sh"
+        "echo '${{ secrets.SUDO_PASSWORD }}' | sudo -S bash /home/srvadmin/switch-blue-green-haproxy.sh ${{ env.OTHER_BACKEND }}"
 
     - name: Verify active backend in HAProxy
       run: |
         sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HAPROXY_HOST }} \
-        "grep 'default_backend' /etc/haproxy/haproxy.cfg | grep 'backend_green' \
-        && echo 'HAProxy switched to backend_green.' \
-        || (grep 'default_backend' /etc/haproxy/haproxy.cfg | grep 'backend_blue' \
-        && echo 'HAProxy switched to backend_blue.' || (echo 'HAProxy switch failed.' && exit 1))"
+        "grep 'default_backend' /etc/haproxy/haproxy.cfg | grep ${{ env.OTHER_BACKEND }} \
+        && echo 'HAProxy switched to ${{ env.OTHER_BACKEND }}.' \
+        || (echo 'HAProxy switch failed.' && exit 1)"
