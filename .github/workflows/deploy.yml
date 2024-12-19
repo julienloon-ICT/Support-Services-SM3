@@ -61,17 +61,16 @@ jobs:
     runs-on: haproxy
     needs: approval-step
     steps:
-    - name: Determine active backend
-      id: active-backend
+    - name: Determine next backend
+      id: next-backend
       run: |
-        ACTIVE_BACKEND=$(sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HAPROXY_HOST }} \
-          "grep 'default_backend' /etc/haproxy/haproxy.cfg | awk '{print \$2}'")
-        echo "Active backend: $ACTIVE_BACKEND"
-        if [ "$ACTIVE_BACKEND" = "backend_blue" ]; then
-          echo "OTHER_BACKEND=backend_green" >> $GITHUB_ENV
+        CURRENT_BACKEND=$(sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HAPROXY_HOST }} \
+          "cat /home/srvadmin/haproxy_backend_status.txt 2>/dev/null || echo 'backend_blue'")
+        if [ "$CURRENT_BACKEND" = "backend_blue" ]; then
+          echo "NEXT_BACKEND=backend_green" >> $GITHUB_ENV
           echo "TARGET_SERVER=192.168.1.17" >> $GITHUB_ENV
         else
-          echo "OTHER_BACKEND=backend_blue" >> $GITHUB_ENV
+          echo "NEXT_BACKEND=backend_blue" >> $GITHUB_ENV
           echo "TARGET_SERVER=192.168.1.16" >> $GITHUB_ENV
         fi
 
@@ -86,11 +85,12 @@ jobs:
     - name: Switch HAProxy backend
       run: |
         sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HAPROXY_HOST }} \
-        "echo '${{ secrets.SUDO_PASSWORD }}' | sudo -S bash /home/srvadmin/switch-blue-green-haproxy.sh ${{ env.OTHER_BACKEND }}"
+        "echo '${{ secrets.SUDO_PASSWORD }}' | sudo -S bash /home/srvadmin/switch-blue-green-haproxy.sh ${{ env.NEXT_BACKEND }} && \
+         echo '${{ env.NEXT_BACKEND }}' > /home/srvadmin/haproxy_backend_status.txt"
 
     - name: Verify active backend in HAProxy
       run: |
         sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.HAPROXY_HOST }} \
-        "grep 'default_backend' /etc/haproxy/haproxy.cfg | grep ${{ env.OTHER_BACKEND }} \
-        && echo 'HAProxy switched to ${{ env.OTHER_BACKEND }}.' \
+        "grep 'default_backend' /etc/haproxy/haproxy.cfg | grep ${{ env.NEXT_BACKEND }} \
+        && echo 'HAProxy switched to ${{ env.NEXT_BACKEND }}.' \
         || (echo 'HAProxy switch failed.' && exit 1)"

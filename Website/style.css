@@ -1,124 +1,123 @@
 /* Global Reset */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  body {
-    font-family: 'Roboto', sans-serif;
-    color: #222;
-    background-color: #f4fff0; /* Light green background */
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-  
-  /* Navbar */
-  .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 2rem;
-    background-color: #006633; /* Green */
-  }
-  
-  .navbar .logo img {
-    height: 40px;
-  }
-  
-  .navbar .nav-links {
-    list-style: none;
-    display: flex;
-    gap: 1.5rem;
-  }
-  
-  .navbar .nav-links a {
-    text-decoration: none;
-    color: white;
-    font-size: 1rem;
-    font-weight: bold;
-    transition: color 0.3s ease;
-  }
-  
-  .navbar .nav-links a:hover {
-    color: #33cc33; /* Lighter green */
-  }
-  
-  /* Hero Section */
-  .hero {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    background: linear-gradient(135deg, #009933, #33cc33); /* Green gradient */
-    color: white;
-    padding: 4rem 2rem;
-  }
-  
-  .hero-content {
-    max-width: 600px;
-  }
-  
-  .hero h1 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-  }
-  
-  .hero p {
-    font-size: 1.25rem;
-    margin-bottom: 2rem;
-  }
-  
-  .cta-button {
-    display: inline-block;
-    padding: 0.75rem 1.5rem;
-    background-color: white;
-    color: #009933; /* Dark green */
-    text-decoration: none;
-    font-weight: bold;
-    border-radius: 25px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
-  
-  .cta-button:hover {
-    background-color: #33cc33; /* Lighter green */
-    color: white;
-  }
-  
-  /* About Section */
-  .about-section {
-    padding: 4rem 2rem;
-    background-color: #ffffff;
-    text-align: center;
-  }
-  
-  .about-section h2 {
-    font-size: 2rem;
-    color: #006633; /* Dark green */
-    margin-bottom: 1rem;
-  }
-  
-  .about-section p {
-    font-size: 1.1rem;
-    line-height: 1.6;
-    color: #333333;
-    max-width: 800px;
-    margin: 0 auto;
-  }
-  
-  .about-section strong {
-    color: #009933; /* Green */
-  }
-  
-  /* Footer */
-  footer {
-    background-color: #006633; /* Green */
-    color: white;
-    text-align: center;
-    padding: 1rem;
-    margin-top: auto;
-    font-size: 0.9rem;
-  }
-  
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  color: #222;
+  background-color: #f0f4f8;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #003366;
+}
+
+.navbar .logo img {
+  height: 40px;
+}
+
+.navbar .nav-links {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+}
+
+.navbar .nav-links a {
+  text-decoration: none;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.navbar .nav-links a:hover {
+  color: #00aced;
+}
+
+/* Hero Section */
+.hero {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: linear-gradient(135deg, #005f99, #00aced);
+  color: white;
+  padding: 4rem 2rem;
+}
+
+.hero-content {
+  max-width: 600px;
+}
+
+.hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.hero p {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.cta-button {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background-color: white;
+  color: #005f99;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 25px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.cta-button:hover {
+  background-color: #00aced;
+  color: white;
+}
+
+/* About Section */
+.about-section {
+  padding: 4rem 2rem;
+  background-color: #ffffff;
+  text-align: center;
+}
+
+.about-section h2 {
+  font-size: 2rem;
+  color: #003366;
+  margin-bottom: 1rem;
+}
+
+.about-section p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #333333;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.about-section strong {
+  color: #005f99;
+}
+
+/* Footer */
+footer {
+  background-color: #003366;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  margin-top: auto;
+  font-size: 0.9rem;
+}
